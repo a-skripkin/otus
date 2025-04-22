@@ -25,7 +25,7 @@
 14) зайдите под пользователем testread в базу данных testdb  
 Получил ошибку - "Peer authentication failed for user "testread" - прописываем  в файле pg_hba.conf параметр md5 для testread, для возможности подключения с паролем.
 15) сделайте select * from t1;  
-Ошибка - "permission denied for table t1" потому что таблица t1 создана в схеме public, на нее права мы не давали
+Ошибка - "permission denied for table t1" - потому что таблица t1 создана в схеме public, на нее права мы не давали  
 16)вернитесь в базу данных testdb под пользователем postgres  
 ```\c testdb postgres```
 17)удалите таблицу t1  
