@@ -1,0 +1,66 @@
+# ДЗ Репликация  
+
+### Разворачиваем 3 вм и устанавливаем postgresql
+
+### 1) На 1 ВМ создаем таблицы test для записи, test2 для запросов на чтение.
+
+CREATE TABLE test (
+    id SERIAL PRIMARY KEY,
+    data TEXT
+);
+
+CREATE TABLE test2 (
+    id SERIAL PRIMARY KEY,
+    info TEXT
+);
+
+### (Можно отозвать права на изменения в таблице):
+REVOKE INSERT, UPDATE, DELETE ON test2 FROM PUBLIC;
+
+### 2) Создаем публикацию таблицы test и подписываемся на публикацию таблицы test2 с ВМ №2.
+
+CREATE PUBLICATION public_test FOR TABLE test;
+CREATE PUBLICATION public_test2 FOR TABLE test2;
+
+
+CREATE SUBSCRIPTION sub_test2
+CONNECTION 'host=192.168.112.240 port=5432 user=postgres password=password dbname=postgres'
+PUBLICATION public_test2
+
+### 3) На 2 ВМ создаем таблицы test2 для записи, test для запросов на чтение.
+
+CREATE TABLE test2 (
+    id SERIAL PRIMARY KEY,
+    data TEXT
+);
+
+
+CREATE TABLE test (
+    id SERIAL PRIMARY KEY,
+    info TEXT
+);
+
+### 4) Создаем публикацию таблицы test2 и подписываемся на публикацию таблицы test с ВМ №1. 
+
+CREATE PUBLICATION public_test2 FOR TABLE test2;
+
+
+CREATE SUBSCRIPTION sub_test2
+CONNECTION 'host=192.168.112.240 port=5432 user=postgres password=password dbname=postgres'
+PUBLICATION public_test
+
+
+### 5) 3 ВМ использовать как реплику для чтения и бэкапов (подписаться на таблицы из ВМ №1 и №2 )
+
+
+CREATE SUBSCRIPTION sub_vm1
+CONNECTION 'host=192.168.112.240 port=5432 user=postgres password=password dbname=postgres'
+PUBLICATION public_test
+
+
+CREATE SUBSCRIPTION sub_vm2
+CONNECTION 'host=192.168.112.241 port=5432 user=postgres password=password dbname=postgres'
+PUBLICATION public_test2
+
+__________________________
+Скрипкин А.В.
